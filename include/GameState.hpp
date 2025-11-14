@@ -1,7 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 
-class Game; // Forward declaration
+class Game;
 
 class GameState {
 public:

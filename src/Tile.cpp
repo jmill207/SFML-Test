@@ -2,12 +2,11 @@
 
 Tile::Tile(int size) : tileSize(size) {
     shape.setSize(sf::Vector2f(static_cast<float>(tileSize), static_cast<float>(tileSize)));
-    shape.setFillColor(sf::Color(150, 150, 150)); // default gray
+    shape.setFillColor(sf::Color(150, 150, 150));
     walkable = true;
 }
 
 void Tile::setPosition(int x, int y) {
-    //shape.setPosition(static_cast<float>(x * tileSize), static_cast<float>(y * tileSize));
     shape.setPosition(sf::Vector2f((float)x * tileSize, (float)y * tileSize));
 }
 
