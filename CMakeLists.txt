@@ -6,11 +6,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # -------------------------------------------------------------------
-# Step 1. Try to locate SFML via system or package manager
+# Step 1: Locate SFML
 # -------------------------------------------------------------------
-
 if(APPLE)
-    # Try Homebrew default install paths (Apple Silicon & Intel)
+    # Homebrew default install paths
     list(APPEND CMAKE_PREFIX_PATH
         /opt/homebrew/opt/sfml
         /usr/local/opt/sfml
@@ -20,7 +19,7 @@ endif()
 find_package(SFML 3.0.2 COMPONENTS Graphics Audio Window System)
 
 # -------------------------------------------------------------------
-# Step 2. If not found, fetch SFML from GitHub automatically
+# Step 2: Fetch SFML if not found
 # -------------------------------------------------------------------
 if(NOT SFML_FOUND)
     message(WARNING "SFML 3.0.2 not found locally — fetching from GitHub...")
@@ -35,85 +34,60 @@ if(NOT SFML_FOUND)
 endif()
 
 # -------------------------------------------------------------------
-# Step 3. Collect source files
+# Step 3: Fetch nlohmann/json
 # -------------------------------------------------------------------
-file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/*.cpp")
-file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS "include/*.hpp")
+include(FetchContent)
+FetchContent_Declare(
+    json
+    GIT_REPOSITORY https://github.com/nlohmann/json.git
+    GIT_TAG v3.11.3
+)
+FetchContent_MakeAvailable(json)
 
-add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
+# -------------------------------------------------------------------
+# Step 4: Collect source files
+# -------------------------------------------------------------------
+file(GLOB_RECURSE ALL_SOURCES CONFIGURE_DEPENDS "src/*.cpp")
+list(FILTER ALL_SOURCES EXCLUDE REGEX "src/jsonTest.cpp$")
+
+add_executable(${PROJECT_NAME} ${ALL_SOURCES} ${HEADERS})
 
 # -------------------------------------------------------------------
-# Step 4. Include directories
+# Step 5: Include directories
 # -------------------------------------------------------------------
-target_include_directories(${PROJECT_NAME}
-    PRIVATE
-        include
+target_include_directories(${PROJECT_NAME} PRIVATE include)
+
+# -------------------------------------------------------------------
+# Step 6: Link SFML and JSON
+# -------------------------------------------------------------------
+target_link_libraries(${PROJECT_NAME} PRIVATE
+    SFML::Graphics
+    SFML::Audio
+    SFML::Window
+    SFML::System
+    nlohmann_json::nlohmann_json
 )
 
-# Add explicit include paths for Homebrew SFML (macOS only)
+# macOS runtime path for SFML dylibs
 if(APPLE)
-    set(SFML_ROOT "/opt/homebrew/opt/sfml")
-    if(NOT EXISTS ${SFML_ROOT})
-        set(SFML_ROOT "/usr/local/opt/sfml")
+    if(DEFINED SFML_DIR)
+        get_target_property(SFML_LIB_DIR SFML::Graphics LOCATION)
+        get_filename_component(SFML_LIB_DIR "${SFML_LIB_DIR}" DIRECTORY)
+        set_target_properties(${PROJECT_NAME} PROPERTIES
+            BUILD_RPATH "${SFML_LIB_DIR}"
+            INSTALL_RPATH "${SFML_LIB_DIR}"
+        )
     endif()
-    set(SFML_INCLUDE_DIR "${SFML_ROOT}/include")
-    set(SFML_LIB_DIR "${SFML_ROOT}/lib")
-
-    target_include_directories(${PROJECT_NAME} PRIVATE ${SFML_INCLUDE_DIR})
-    link_directories(${SFML_LIB_DIR})
 endif()
 
 # -------------------------------------------------------------------
-# Step 5. Link SFML
+# Step 7: Optional JSON test executable
 # -------------------------------------------------------------------
-if(APPLE)
-    set(SFML_ROOT "/opt/homebrew/opt/sfml")
-    if(NOT EXISTS ${SFML_ROOT})
-        set(SFML_ROOT "/usr/local/opt/sfml")
-    endif()
-    set(SFML_INCLUDE_DIR "${SFML_ROOT}/include")
-    set(SFML_LIB_DIR "${SFML_ROOT}/lib")
-
-    target_include_directories(${PROJECT_NAME} PRIVATE ${SFML_INCLUDE_DIR})
-
-    # Explicitly link libraries by full path
-    target_link_directories(${PROJECT_NAME} PRIVATE ${SFML_LIB_DIR})
-
-    target_link_libraries(${PROJECT_NAME}
-        PRIVATE
-        sfml-graphics
-        sfml-audio
-        sfml-window
-        sfml-system
-    )
-
-    # Tell macOS where to find the dylibs at runtime
-    set_target_properties(${PROJECT_NAME} PROPERTIES
-        BUILD_RPATH "${SFML_LIB_DIR}"
-        INSTALL_RPATH "${SFML_LIB_DIR}"
-    )
-else()
-    # Other platforms (Windows/Linux)
-    target_link_libraries(${PROJECT_NAME}
-        PRIVATE
-        sfml-graphics
-        sfml-audio
-        sfml-window
-        sfml-system
-    )
-endif()
+add_executable(jsonTest src/jsonTest.cpp)
+target_link_libraries(jsonTest PRIVATE nlohmann_json::nlohmann_json)
 
 # -------------------------------------------------------------------
-# Step 6. Copy assets (temporarily disabled)
-# -------------------------------------------------------------------
-# add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-#     COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${PROJECT_NAME}>/assets"
-#     COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/assets" "$<TARGET_FILE_DI
-
-
-# -------------------------------------------------------------------
-# Step 7. Debug info
+# Step 8: Debug info
 # -------------------------------------------------------------------
 message(STATUS "SFML found in: ${SFML_DIR}")
-message(STATUS "SFML include: ${SFML_INCLUDE_DIR}")
 message(STATUS "CMake prefix path: ${CMAKE_PREFIX_PATH}")
