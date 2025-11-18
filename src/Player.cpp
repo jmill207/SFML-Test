@@ -8,18 +8,6 @@ Player::Player(int x, int y){
     shape.setPosition({(float) tilePos.x * tileSize + 2.f, (float) tilePos.y * tileSize + 2.f});
 }
 
-/*
-void Player::move(int x, int y, const std::vector<std::vector<int>> & map) {
-    sf::Vector2i newPos = tilePos + sf::Vector2i(x,y);
-    if(newPos.y >= 0 && newPos.y < (int) map.size() 
-    && newPos.x >= 0 && newPos.x < (int) map[0].size()
-    && map[newPos.y][newPos.x] == 0) {
-        tilePos = newPos;
-        shape.setPosition({(float) tilePos.x * tileSize + 2.f, (float) tilePos.y * tileSize + 2.f});
-    }
-}
-*/ 
-
 void Player::move(int x, int y, const Map& map) {
     sf::Vector2i newPos = tilePos + sf::Vector2i(x, y);
     if (map.isWalkable(newPos.x, newPos.y)) {
