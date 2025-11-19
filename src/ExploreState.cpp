@@ -5,8 +5,7 @@
 ExploreState::ExploreState(Map& loadedMap)
     : map(loadedMap), player(0, 0, loadedMap.getTileSize())
 {
-    sf::Vector2i start = findWalkableStart();
-    player = Player(start.x, start.y, map.getTileSize());
+    player = Player(1, 1, map.getTileSize());
 }
 
 sf::Vector2i ExploreState::findWalkableStart() const {
@@ -23,19 +22,29 @@ sf::Vector2i ExploreState::findWalkableStart() const {
 }
 
 void ExploreState::handleInput(Game&, sf::RenderWindow&) {
-    if (moveClock.getElapsedTime().asSeconds() < moveCooldown) return;
-
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)) player.move(0, -1, map);
-    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)) player.move(0, 1, map);
-    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)) player.move(-1, 0, map);
-    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) player.move(1, 0, map);
-    else return;
-
+    if (moveClock.getElapsedTime().asSeconds() < moveCooldown) {
+        return;
+    }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)) {
+        player.move(0, -1, map);
+    } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)) {
+        player.move(0, 1, map);
+    } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)) {
+        player.move(-1, 0, map);
+    } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) {
+        player.move(1, 0, map);
+    } else {
+        return;
+    }
     moveClock.restart();
 }
 
-void ExploreState::update(Game&) {
-    // placeholder
+void ExploreState::update(Game& game) {
+    sf::Vector2i pos = player.getTilePos();
+    auto* tile = map.getTile(pos.x, pos.y);
+    if (auto* exit = dynamic_cast<ExitTile*>(tile)) {
+        game.switchRoom(exit->destination, exit->spawn);
+    }
 }
 
 void ExploreState::render(Game&, sf::RenderWindow& window) {
@@ -43,3 +52,6 @@ void ExploreState::render(Game&, sf::RenderWindow& window) {
     window.draw(player);
 }
 
+void ExploreState::setPlayerPos(sf::Vector2i pos) {
+    player = Player(pos.x, pos.y, map.getTileSize());
+}

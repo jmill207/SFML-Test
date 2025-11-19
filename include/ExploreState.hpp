@@ -10,15 +10,13 @@ private:
     Player player;
     sf::Clock moveClock;
     float moveCooldown = 0.12f;
-
     sf::Vector2i findWalkableStart() const;
-
 public:
     ExploreState(Map& loadedMap);
-
     void handleInput(Game&, sf::RenderWindow&) override;
-    void update(Game&) override;
+    void update(Game& game) override;
     void render(Game&, sf::RenderWindow&) override;
+    void setPlayerPos(sf::Vector2i pos);
 };
 
 

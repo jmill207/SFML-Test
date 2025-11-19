@@ -1,0 +1,10 @@
+{
+  "tileSize": 32,
+  "tiles": [
+    ["Wall","Wall","Wall","Wall","Wall","Wall","Wall","Wall","Wall"],
+    [{ "type": "Exit", "destination": 0, "spawn": [1,1] },"Grass","Grass","Grass","Grass","Grass","Grass","Wall", "Wall"],
+    ["Wall","Grass","Grass","Grass","Wall","Grass","Grass","Grass","Wall"],
+    ["Wall","Grass","Grass","Grass","Grass","Grass","Grass","Grass",{ "type": "Exit", "destination": 2, "spawn": [3,3] }],
+    ["Wall","Wall","Wall","Wall","Wall","Wall","Wall","Wall", "Wall"]
+  ]
+}

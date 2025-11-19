@@ -4,11 +4,14 @@
 #include <cstdlib>
 
 Game::Game() : window(sf::VideoMode({1000, 600}), "RPG") {
-    if (!map.loadFromJSON("data/maps/map2.json")) {
+    maps.resize(3);
+    if (!maps[0].loadFromJSON("data/maps/room0.json") || 
+        !maps[1].loadFromJSON("data/maps/room1.json") || 
+        !maps[2].loadFromJSON("data/maps/room2.json") ) {
         std::cerr << "Failed to load map JSON\n";
         std::exit(EXIT_FAILURE);
     }
-    changeState(std::make_unique<ExploreState>(map));
+    changeState(std::make_unique<ExploreState>(maps[currRoom]));
 }
 
 void Game::run() {
@@ -25,17 +28,23 @@ void Game::run() {
                     window.close();
                 }
             }
-
             currentState->handleInput(*this, window);
-            currentState->update(*this);
-
-            window.clear();
-            currentState->render(*this, window);
-            window.display();
         }
+        currentState->update(*this);
+        window.clear();
+        currentState->render(*this, window);
+        window.display();
     }
 }
 
+
 void Game::changeState(std::unique_ptr<GameState> newState) {
     currentState = std::move(newState);
+}
+
+void Game::switchRoom(int idx, sf::Vector2i spawn) {
+    this->currRoom = idx;
+    auto state = std::make_unique<ExploreState>(maps[currRoom]);
+    state->setPlayerPos(spawn);
+    changeState(std::move(state));
 }

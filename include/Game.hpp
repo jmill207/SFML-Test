@@ -10,13 +10,16 @@ class Game {
 private:
     sf::RenderWindow window;
     std::unique_ptr<GameState> currentState;
-    Map map;
+    std::vector<Map> maps;
+    int currRoom = 0;
 public:
     Game();
     void run();
     void changeState(std::unique_ptr<GameState> newState);
 
     sf::RenderWindow& getWindow() { return window; }
-    Map& getMap() { return map; }
+    std::vector<Map>& getMaps() { return maps; }
+    int getCurrRoom() const { return currRoom ;}
+    void switchRoom(int idx, sf::Vector2i spawn);
 };
 

@@ -6,6 +6,7 @@
 #include "Tile.hpp"
 #include "GrassTile.hpp"
 #include "WallTile.hpp"
+#include "ExitTile.hpp"
 
 class Map : public sf::Drawable {
 private:
@@ -18,6 +19,7 @@ public:
     bool loadFromJSON(const std::string& filename);
 
     bool isWalkable(int x, int y) const;
+    Tile* getTile(int x, int y) const;
     int getTileSize() const { return tileSize; }
 
     int getWidth() const { return tiles.empty() ? 0 : static_cast<int>(tiles[0].size()); }
