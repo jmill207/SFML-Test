@@ -9,7 +9,7 @@ protected:
 public:
     Tile(int size = 32);
     virtual ~Tile() = default;
-
+    sf::RectangleShape& getShape() { return shape; }
     virtual void setPosition(int x, int y);
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
     virtual bool isWalkable() const { return walkable; }

@@ -3,20 +3,21 @@
 #include "Map.hpp"
 #include "Player.hpp"
 #include <SFML/Graphics.hpp>
+#include "Entity.hpp"
 
 class ExploreState : public GameState {
 private:
     Map& map;
-    Player player;
+    Player& player; 
     sf::Clock moveClock;
     float moveCooldown = 0.12f;
-    sf::Vector2i findWalkableStart() const;
+    bool battleStarted = false;
+    sf::Vector2i lastPlayerTile;
 public:
-    ExploreState(Map& loadedMap);
+    ExploreState(Map& loadedMap, Player& playerRef);
     void handleInput(Game&, sf::RenderWindow&) override;
     void update(Game& game) override;
     void render(Game&, sf::RenderWindow&) override;
     void setPlayerPos(sf::Vector2i pos);
+    void resetBattleFlag();
 };
-
-

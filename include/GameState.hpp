@@ -10,4 +10,3 @@ public:
     virtual void update(Game& game) = 0;
     virtual void render(Game& game, sf::RenderWindow& window) = 0;
 };
-
