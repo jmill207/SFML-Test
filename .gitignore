@@ -8,3 +8,6 @@ gametile
 gametile2
 sfml-app
 sfml-test
+.DS_Store
+_deps/
+bin/

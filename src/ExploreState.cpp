@@ -49,7 +49,6 @@ void ExploreState::update(Game& game) {
         if (!enemyPtr) continue;
         if (enemyPtr->getTilePos() == pos) {
             std::cout << "Battle initiated!\n";
-            //previousPlayerPos = player.getTilePos();
             game.setPreviousPlayerPos(lastPlayerTile);
             game.startCombat(player, enemyPtr);
             return;

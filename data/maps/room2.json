@@ -1,10 +1,18 @@
 {
   "tileSize": 32,
   "tiles": [
-    ["Wall","Wall","Wall","Wall","Wall","Wall"],
-    ["Wall","Grass","Grass","Grass","Grass","Wall"],
-    ["Wall","Grass","Wall","Grass","Grass","Wall"],
-    ["Wall","Grass","Grass","Grass","Grass","Wall"],
-    ["Wall","Wall",{ "type": "Exit", "destination": 0, "spawn": [1,1] },"Wall","Wall","Wall"]
+    ["Wall","Wall","Wall","Wall","Wall","Wall","Wall",{ "type": "Exit", "destination": 3, "spawn": [7,11] },"Wall","Wall","Wall","Wall","Wall","Wall","Wall","Wall","Wall","Wall"],
+    ["Wall","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Wall"],
+    ["Wall","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Wall"],
+    ["Wall","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Wall"],
+    ["Wall","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Wall"],
+    ["Wall","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Wall"],
+    ["Wall","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Wall"],
+    ["Wall","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Wall"],
+    ["Wall","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Wall"],
+    ["Wall","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Wall"],
+    ["Wall","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Wall"],
+    [{ "type": "Exit", "destination": 1, "spawn": [16,11] },"Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Grass","Wall"],
+    ["Wall","Wall","Wall","Wall","Wall","Wall","Wall","Wall","Wall","Wall","Wall","Wall","Wall","Wall","Wall","Wall","Wall","Wall"]
   ]
 }

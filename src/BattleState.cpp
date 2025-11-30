@@ -6,41 +6,42 @@ BattleState::BattleState(Player& p, std::shared_ptr<Entity> e, Game& gameRef)
     : player(p), enemy(std::move(e)), game(gameRef), playerText(font), enemyText(font), infoText(font)
 {
     setupText();
-    enemyPlaceholder.setSize(sf::Vector2f(80, 80));
+
+    enemyPlaceholder.setSize(sf::Vector2f(60.f, 60.f));
     enemyPlaceholder.setFillColor(sf::Color::Red);
-    enemyPlaceholder.setPosition(sf::Vector2f(400.f, 200.f));
+    enemyPlaceholder.setPosition(sf::Vector2f(300.f, 150.f));
 }
 
 void BattleState::setupText() {
-    if (!font.openFromFile("data/fonts/arial.ttf")) {
+   if (!font.openFromFile("data/fonts/arial.ttf")) {
         std::cerr << "Failed to load font\n";
     }
 
-    bg.setSize(sf::Vector2f(1000.f, 600.f));
+    bg.setSize(sf::Vector2f(575.f, 415.f));
     bg.setFillColor(sf::Color::Black);
 
     playerText.setFont(font);
-    playerText.setCharacterSize(20);
+    playerText.setCharacterSize(16);
     playerText.setFillColor(sf::Color::White);
-    playerText.setPosition(sf::Vector2f(50.f, 500.f));
+    playerText.setPosition(sf::Vector2f(20.f, 330.f));
 
-    playerHPBar.setSize(sf::Vector2f(200.f, 20.f));
+    playerHPBar.setSize(sf::Vector2f(140.f, 16.f));
     playerHPBar.setFillColor(sf::Color::Green);
-    playerHPBar.setPosition(sf::Vector2f(200.f, 500.f));
+    playerHPBar.setPosition(sf::Vector2f(120.f, 330.f));
 
     enemyText.setFont(font);
-    enemyText.setCharacterSize(20);
+    enemyText.setCharacterSize(16);
     enemyText.setFillColor(sf::Color::White);
-    enemyText.setPosition(sf::Vector2f(50.f, 50.f));
+    enemyText.setPosition(sf::Vector2f(20.f, 20.f));
 
-    enemyHPBar.setSize(sf::Vector2f(200.f, 20.f));
+    enemyHPBar.setSize(sf::Vector2f(140.f, 16.f));
     enemyHPBar.setFillColor(sf::Color::Red);
-    enemyHPBar.setPosition(sf::Vector2f(250.f, 50.f));
+    enemyHPBar.setPosition(sf::Vector2f(140.f, 20.f));
 
     infoText.setFont(font);
-    infoText.setCharacterSize(20);
+    infoText.setCharacterSize(16);
     infoText.setFillColor(sf::Color::Yellow);
-    infoText.setPosition(sf::Vector2f(50.f, 550.f));
+    infoText.setPosition(sf::Vector2f(20.f, 380.f));
 }
 
 void BattleState::handleInput(Game& game, sf::RenderWindow& window) {
@@ -125,26 +126,27 @@ void BattleState::update(Game& game) {
 }
 
 void BattleState::render(Game&, sf::RenderWindow& window) {
-   window.draw(bg);
-    enemyPlaceholder.setPosition(sf::Vector2f(400.f, 200.f));
+    window.draw(bg);
     window.draw(enemyPlaceholder);
 
     window.draw(enemyText);
     window.draw(enemyHPBar);
     window.draw(playerText);
     window.draw(playerHPBar);
-
     window.draw(infoText);
 
     for (size_t i = 0; i < menuOptions.size(); ++i) {
         sf::Text optionText(font);
         optionText.setFont(font);
-        optionText.setCharacterSize(20);
+        optionText.setCharacterSize(16);
         optionText.setString(menuOptions[i]);
-        optionText.setPosition(sf::Vector2f(600.f + i*120.f, 500.f));
+
+        optionText.setPosition(sf::Vector2f(300.f + i * 90.f, 330.f));
         optionText.setFillColor(i == selectedOption ? sf::Color::Yellow : sf::Color::White);
+
         window.draw(optionText);
     }
+
 }
 
 void BattleState::updateText() {

@@ -5,7 +5,7 @@
 #include <iostream>
 #include <cstdlib>
 
-Game::Game() : window(sf::VideoMode({1000, 600}), "RPG") , player(1,1,32) {
+Game::Game() : window(sf::VideoMode({575, 415}), "RPG") , player(1,1,32) {
     maps.resize(4);
     if (!maps[0].loadFromJSON("data/maps/room0.json") || 
         !maps[1].loadFromJSON("data/maps/room1.json") || 
@@ -15,10 +15,10 @@ Game::Game() : window(sf::VideoMode({1000, 600}), "RPG") , player(1,1,32) {
         std::exit(EXIT_FAILURE);
     }
 
-    maps[0].addEnemy(std::make_shared<Entity>(1, 3, maps[0].getTileSize()));//
-    maps[1].addEnemy(std::make_shared<Entity>(4, 5, maps[1].getTileSize()));//
-    maps[2].addEnemy(std::make_shared<Entity>(2, 2, maps[2].getTileSize()));//
-    maps[3].addEnemy(std::make_shared<Entity>(6, 1, maps[3].getTileSize()));//
+    maps[0].addEnemy(std::make_shared<Entity>(1, 3, maps[0].getTileSize()));
+    maps[1].addEnemy(std::make_shared<Entity>(4, 5, maps[1].getTileSize()));
+    maps[2].addEnemy(std::make_shared<Entity>(2, 2, maps[2].getTileSize()));
+    maps[3].addEnemy(std::make_shared<Entity>(6, 1, maps[3].getTileSize()));
 
     changeState(std::make_unique<ExploreState>(maps[currRoom], player));
 }
