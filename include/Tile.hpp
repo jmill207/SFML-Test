@@ -1,16 +1,32 @@
 #pragma once
-#include <SFML/Graphics.hpp>
+#include "Vec2i.hpp"
 
 class Tile {
 protected:
-    sf::RectangleShape shape;
     bool walkable = true;
-    int tileSize = 32;
 public:
-    Tile(int size = 32);
+    Tile() = default;
     virtual ~Tile() = default;
-    sf::RectangleShape& getShape() { return shape; }
-    virtual void setPosition(int x, int y);
-    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
     virtual bool isWalkable() const { return walkable; }
+    virtual char getSymbol() const { return '.'; }
+};
+
+class WallTile : public Tile {
+public:
+    WallTile() { walkable = false; }
+    char getSymbol() const override { return '#'; }
+};
+
+class GrassTile : public Tile {
+public:
+    GrassTile() { walkable = true; }
+    char getSymbol() const override { return ' '; }
+};
+
+class ExitTile : public Tile {
+public:
+    int destination = 0;
+    Vec2i spawn;
+    ExitTile(int dest, Vec2i sp) : destination(dest), spawn(sp) {}
+    char getSymbol() const override { return 'E'; }
 };

@@ -4,8 +4,9 @@
 #include "Entity.hpp"
 #include <iostream>
 #include <cstdlib>
+#include <memory>
 
-Game::Game() : window(sf::VideoMode({575, 415}), "RPG") , player(1,1,32) {
+Game::Game() : player(1,1,32) {
     maps.resize(4);
     if (!maps[0].loadFromJSON("data/maps/room0.json") || 
         !maps[1].loadFromJSON("data/maps/room1.json") || 
@@ -15,48 +16,37 @@ Game::Game() : window(sf::VideoMode({575, 415}), "RPG") , player(1,1,32) {
         std::exit(EXIT_FAILURE);
     }
 
-    maps[0].addEnemy(std::make_shared<Entity>(1, 3, maps[0].getTileSize()));
-    maps[1].addEnemy(std::make_shared<Entity>(4, 5, maps[1].getTileSize()));
-    maps[2].addEnemy(std::make_shared<Entity>(2, 2, maps[2].getTileSize()));
-    maps[3].addEnemy(std::make_shared<Entity>(6, 1, maps[3].getTileSize()));
+    maps[0].addEnemy(std::make_shared<Entity>(1, 3));
+    maps[1].addEnemy(std::make_shared<Entity>(4, 5));
+    maps[2].addEnemy(std::make_shared<Entity>(2, 2));
+    maps[3].addEnemy(std::make_shared<Entity>(6, 1));
 
     changeState(std::make_unique<ExploreState>(maps[currRoom], player));
 }
 
 void Game::run() {
-    window.setFramerateLimit(60);
-
-    while (window.isOpen()) {
-        while (auto event = window.pollEvent()) {
-            if (event->is<sf::Event::Closed>()) {
-                window.close();
-            }
-
-            if (auto key = event->getIf<sf::Event::KeyPressed>()) {
-                if (key->code == sf::Keyboard::Key::Escape) {
-                    window.close();
-                }
-            }
-            currentState->handleInput(*this, window);
-        }
-
+    while (true) {
         if (nextState) {
             currentState = std::move(nextState);
         }
+        currentState->handleInput(*this);
 
         currentState->update(*this);
-        window.clear();
-        currentState->render(*this, window);
-        window.display();
+        currentState->render(*this);
+        std::cout << "Press Q to quit, or Enter to continue...\n";
+        std::string input;
+        std::getline(std::cin, input);
+        if (!input.empty() && (input[0] == 'q' || input[0] == 'Q')) {
+            break;
+        }
     }
 }
-
 
 void Game::changeState(std::unique_ptr<GameState> newState) {
     nextState = std::move(newState);
 }
 
-void Game::switchRoom(int idx, sf::Vector2i spawn) {
+void Game::switchRoom(int idx, Vec2i spawn) {
     this->currRoom = idx;
     auto state = std::make_unique<ExploreState>(maps[currRoom], player);
     state->setPlayerPos(spawn);
@@ -67,7 +57,7 @@ void Game::startCombat(Player& playerRef, std::shared_ptr<Entity> enemyPtr) {
     changeState(std::make_unique<BattleState>(playerRef, enemyPtr, *this));
 }
 
-void Game::endCombat(bool ranAway, sf::Vector2i previousPos) {
+void Game::endCombat(bool ranAway, Vec2i previousPos) {
     auto temp = std::make_unique<ExploreState>(maps[currRoom], player);
     temp->resetBattleFlag();
     if (ranAway && previousPos.x != -1) {

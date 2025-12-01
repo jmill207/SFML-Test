@@ -1,175 +1,96 @@
 #include "BattleState.hpp"
 #include "Game.hpp"
 #include "ExploreState.hpp"
+#include <iostream>
+#include <limits>
 
-BattleState::BattleState(Player& p, std::shared_ptr<Entity> e, Game& gameRef)
-    : player(p), enemy(std::move(e)), game(gameRef), playerText(font), enemyText(font), infoText(font)
+BattleState::BattleState(Player& p, std::shared_ptr<Entity> e, Game& g)
+    : player(p), enemy(std::move(e)), game(g)
 {
-    setupText();
-
-    enemyPlaceholder.setSize(sf::Vector2f(60.f, 60.f));
-    enemyPlaceholder.setFillColor(sf::Color::Red);
-    enemyPlaceholder.setPosition(sf::Vector2f(300.f, 150.f));
+    std::cout << "Battle started against " << enemy->getStats().getName() << "!\n";
+    printStatus();
 }
 
-void BattleState::setupText() {
-   if (!font.openFromFile("data/fonts/arial.ttf")) {
-        std::cerr << "Failed to load font\n";
-    }
-
-    bg.setSize(sf::Vector2f(575.f, 415.f));
-    bg.setFillColor(sf::Color::Black);
-
-    playerText.setFont(font);
-    playerText.setCharacterSize(16);
-    playerText.setFillColor(sf::Color::White);
-    playerText.setPosition(sf::Vector2f(20.f, 330.f));
-
-    playerHPBar.setSize(sf::Vector2f(140.f, 16.f));
-    playerHPBar.setFillColor(sf::Color::Green);
-    playerHPBar.setPosition(sf::Vector2f(120.f, 330.f));
-
-    enemyText.setFont(font);
-    enemyText.setCharacterSize(16);
-    enemyText.setFillColor(sf::Color::White);
-    enemyText.setPosition(sf::Vector2f(20.f, 20.f));
-
-    enemyHPBar.setSize(sf::Vector2f(140.f, 16.f));
-    enemyHPBar.setFillColor(sf::Color::Red);
-    enemyHPBar.setPosition(sf::Vector2f(140.f, 20.f));
-
-    infoText.setFont(font);
-    infoText.setCharacterSize(16);
-    infoText.setFillColor(sf::Color::Yellow);
-    infoText.setPosition(sf::Vector2f(20.f, 380.f));
-}
-
-void BattleState::handleInput(Game& game, sf::RenderWindow& window) {
-    if (battleOver) {
-        return;
-    }
+void BattleState::handleInput(Game& game) {
+    if (battleOver) return;
 
     if (playerTurn) {
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) {
-            selectedOption = (selectedOption + menuOptions.size() - 1) % menuOptions.size();
+        std::cout << "\nChoose action:\n";
+        for (size_t i = 0; i < menuOptions.size(); ++i) {
+            std::cout << (i + 1) << ". " << menuOptions[i] << "\n";
+        }
+        std::cout << "> ";
+
+        int choice = 0;
+        std::cin >> choice;
+
+        while(std::cin.fail() || choice < 1 || choice > static_cast<int>(menuOptions.size())) {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cout << "Invalid choice. Try again: ";
+            std::cin >> choice;
+        }
+
+        std::string action = menuOptions[choice - 1];
+
+        if (action == "Attack") {
+            playerAttack();
+            playerTurn = false;
         } 
-        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)) {
-            selectedOption = (selectedOption + 1) % menuOptions.size();
-        }
-
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space)) {
-            std::string choice = menuOptions[selectedOption];
-
-            if (choice == "Attack") {
-                playerAttack();
-                playerTurn = false;
-                updateText();
-            }
-            else if (choice == "Run") {
-                infoText.setString("You ran away!");
-                battleOver = true;
-                game.endCombat(true, game.getPreviousPlayerPos());
-            }
-            else if (choice == "Items") {
-                infoText.setString("Items not implemented yet!");
-            }
-        }
-
-        if (player.getStats().getHP() <= 0) {
-            infoText.setString("Player defeated!");
+        else if (action == "Run") {
+            std::cout << "You ran away!\n";
             battleOver = true;
-            game.endCombat();
+            game.endCombat(true, game.getPreviousPlayerPos());
+            return;
+        } 
+        else if (action == "Items") {
+            std::cout << "Items not implemented yet!\n";
         }
 
-        if (enemy->getStats().getHP() <= 0) {
-            infoText.setString(enemy->getStats().getName() + " defeated!");
+        if (enemy->getStats().isDead()) {
+            std::cout << enemy->getStats().getName() << " defeated!\n";
             game.getMaps()[game.getCurrRoom()].removeEnemy(enemy);
             battleOver = true;
             game.endCombat();
+            return;
         }
-    }
-    else {
+
+    } else {
         enemyAttack();
         playerTurn = true;
-        updateText();
 
-        if (player.getStats().getHP() <= 0) {
-            infoText.setString("Player defeated!");
-            battleOver = true;
-            game.endCombat();
-        } else if (enemy->getStats().getHP() <= 0) {
-            infoText.setString(enemy->getStats().getName() + " defeated!");
-            game.getMaps()[game.getCurrRoom()].removeEnemy(enemy);
-            battleOver = true;
-            game.endCombat();
-        }
-    }
-}
-
-void BattleState::update(Game& game) {
-    if (!playerTurn && !battleOver) {
-        enemyAttack();
-        playerTurn = true;
-        updateText();
-
-        if (player.getStats().getHP() <= 0) {
+        if (player.getStats().isDead()) {
             std::cout << "Player defeated!\n";
             battleOver = true;
-            game.endCombat(); 
-        } else if (enemy->getStats().getHP() <= 0) {
-            std::cout << "Enemy defeated!\n";
-            game.getMaps()[game.getCurrRoom()].removeEnemy(enemy);
-            battleOver = true;
             game.endCombat();
+            return;
         }
     }
+
+    printStatus();
 }
 
-void BattleState::render(Game&, sf::RenderWindow& window) {
-    window.draw(bg);
-    window.draw(enemyPlaceholder);
-
-    window.draw(enemyText);
-    window.draw(enemyHPBar);
-    window.draw(playerText);
-    window.draw(playerHPBar);
-    window.draw(infoText);
-
-    for (size_t i = 0; i < menuOptions.size(); ++i) {
-        sf::Text optionText(font);
-        optionText.setFont(font);
-        optionText.setCharacterSize(16);
-        optionText.setString(menuOptions[i]);
-
-        optionText.setPosition(sf::Vector2f(300.f + i * 90.f, 330.f));
-        optionText.setFillColor(i == selectedOption ? sf::Color::Yellow : sf::Color::White);
-
-        window.draw(optionText);
-    }
-
+void BattleState::update(Game&) {
+    // All logic handled in handleInput
 }
 
-void BattleState::updateText() {
-    playerText.setString(player.getStats().getName());
-    float playerHPPercent = float(player.getStats().getHP()) / player.getStats().getMaxHP();
-    playerHPBar.setSize(sf::Vector2f(200.f * playerHPPercent, 20.f));
-
-    enemyText.setString(enemy->getStats().getName());
-    float enemyHPPercent = float(enemy->getStats().getHP()) / enemy->getStats().getMaxHP();
-    enemyHPBar.setSize(sf::Vector2f(200.f * enemyHPPercent, 20.f));
-
+void BattleState::render(Game&) {
+    // All rendering now via console in handleInput/printStatus
 }
 
 void BattleState::playerAttack() {
     int damage = std::max(0, player.getStats().getAttack() - enemy->getStats().getDefense());
-    int newHP = enemy->getStats().getHP() - damage;
-    enemy->getStats().setHP(std::max(0, newHP));
-    infoText.setString("You hit " + enemy->getStats().getName() + " for " + std::to_string(damage) + " damage!");
+    enemy->getStats().takeDamage(damage);
+    std::cout << "You hit " << enemy->getStats().getName() << " for " << damage << " damage!\n";
 }
 
 void BattleState::enemyAttack() {
     int damage = std::max(0, enemy->getStats().getAttack() - player.getStats().getDefense());
-    int newHP = player.getStats().getHP() - damage;
-    player.getStats().setHP(std::max(0, newHP));
-    infoText.setString(enemy->getStats().getName() + " hits you for " + std::to_string(damage) + " damage!");
+    player.getStats().takeDamage(damage);
+    std::cout << enemy->getStats().getName() << " hits you for " << damage << " damage!\n";
+}
+
+void BattleState::printStatus() {
+    std::cout << "\nPlayer HP: " << player.getStats().getHP() << "/" << player.getStats().getMaxHP() << "\n";
+    std::cout << enemy->getStats().getName() << " HP: " << enemy->getStats().getHP() << "/" << enemy->getStats().getMaxHP() << "\n";
 }

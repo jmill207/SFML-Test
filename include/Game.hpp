@@ -1,20 +1,20 @@
 #pragma once
-#include <SFML/Graphics.hpp>
 #include "GameState.hpp"
 #include "Player.hpp"
+#include "Vec2i.hpp"
 #include <memory>
 #include "Map.hpp"
+#include <vector>
 
 class GameState;
 
 class Game {
 private:
-    sf::RenderWindow window;
     std::unique_ptr<GameState> currentState;
     std::vector<Map> maps;
     int currRoom = 0;
     std::unique_ptr<GameState> nextState;
-    sf::Vector2i previousPlayerPos;
+    Vec2i previousPlayerPos { -1, -1 };
 public:
     Player player; 
 
@@ -22,12 +22,11 @@ public:
     void run();
     void changeState(std::unique_ptr<GameState> newState);
 
-    sf::RenderWindow& getWindow() { return window; }
     std::vector<Map>& getMaps() { return maps; }
-    int getCurrRoom() const { return currRoom ;}
-    void switchRoom(int idx, sf::Vector2i spawn);
+    int getCurrRoom() const { return currRoom; }
+    void switchRoom(int idx, Vec2i spawn);
     void startCombat(Player& playerRef, std::shared_ptr<Entity> enemyPtr);
-    void endCombat(bool ranAway = false, sf::Vector2i previousPos = {-1,-1});
-    sf::Vector2i getPreviousPlayerPos() const { return previousPlayerPos; }
-    void setPreviousPlayerPos(sf::Vector2i pos) { previousPlayerPos = pos; }
+    void endCombat(bool ranAway = false, Vec2i previousPos = {-1,-1});
+    Vec2i getPreviousPlayerPos() const { return previousPlayerPos; }
+    void setPreviousPlayerPos(Vec2i pos) { previousPlayerPos = pos; }
 };
